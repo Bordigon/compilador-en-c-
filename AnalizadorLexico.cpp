@@ -1,6 +1,14 @@
 #include "AnalizadorLexico.h"
 #include "GestorDeErrores.h"
 
+#include "TS/TS_CPP/TSManager.h"
+#include "TS/TS_CPP/Include/SymbolTable.h"
+#include "TS/TS_CPP/Include/Entry.h"
+#include "TS/TS_CPP/Include/TSUtils.h"
+#include "TS/TS_CPP/Include/SymbolTable.h"
+
+using namespace TS_CPP;
+
 void comentario(FILE *fd3, char buff[], char* letra, int* linea, int *process, int *estado, char *next, bool *fallo, bool *fin){
 	buff[*process]=*letra; /*Se almacena la letra*/
 
@@ -11,7 +19,7 @@ void comentario(FILE *fd3, char buff[], char* letra, int* linea, int *process, i
 		(*process)++;
 	}
 
-	/* Si la letra=* y el indice=1 se interpreta que es el comienzo del comentario,  pero si indice>1 buscaremos / 
+	/* Si la letra=* y el indice=1 se interpreta que es el comienzo del comentario, pero si indice>1 buscaremos / 
 	como siguiente caracter */		
 	else if(*letra=='*'){ 
 
@@ -55,7 +63,7 @@ void comentario(FILE *fd3, char buff[], char* letra, int* linea, int *process, i
 	}
 }
 
-void cadena(FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *process, int *estado, char *next, bool *fallo, bool *fin){
+void cadena(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *process, int *estado, char *next, bool *fallo, bool *fin, SymbolTable* identi){
 	
 	/*Si indice=0 comenzamos a buscar el final de la cadena, el otro ' */
 	if(!*process){
@@ -68,18 +76,10 @@ void cadena(FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *pro
 		/*Crear el token cadena y vaciar el buffer*/
 		buff[*process-1]='\0';
 
-		if(*process>2){
-			char aux[20];
-			sprintf(aux,"%d",cod_cadena);
-			
-			fputc('<',fd2);
-			fputs(aux,fd2);
-			fputc(',',fd2);
-			fputs(buff,fd2);
-			fputs(">\n",fd2);
-		}
-
-		*fin=1;
+		if(*process>2)
+			crearToken(fd1,fd2,estado,linea,fin,*letra,buff, identi);
+		else
+			*fin=1;
 	}
 
 	/*Símbolos y letras que puede contener la cadena*/
@@ -96,7 +96,7 @@ void cadena(FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *pro
 	}
 }
 
-void num(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *process, int *estado, bool *fallo, bool *fin){
+void num(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *process, int *estado, bool *fallo, bool *fin, SymbolTable* identi){
 	
 	buff[*process]=*letra; /*Se almacena el caracter*/
 
@@ -118,82 +118,8 @@ void num(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, 
 
 	/*Si llegamos a un delimitador y lo que se proceso antes es un digito tenemos un token*/
 	else if(buff[*process-1]!='.'&&(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')')){ 
-		/*Crear el token cadena y vaciar el buffer*/
 		buff[*process]='\0';
-
-		fputc('<',fd2);
-		char aux[20];
-		
-		if(*estado==2){
-			sprintf(aux,"%d",cod_numEntero);
-			fputs(aux,fd2);
-		}
-		else{
-			sprintf(aux,"%d",cod_numReal);
-			fputs(aux,fd2);
-		}
-
-		fputs(", ",fd2);
-		fputs(buff,fd2);
-		fputs(">\n",fd2);
-		
-		if(*letra=='\n')
-			(*linea)++;
-		else if(*letra!=' ')
-			fseek(fd1,-1,SEEK_CUR);
-		
-		*estado=-1;
-		*fin=1;
-	}
-
-	/*Si el símbolo no está contemplado, da error*/
-	else{
-		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'){
-			buff[*process]='\0';
-			err(fd3, buff, *estado, *letra, linea);
-
-			if(*letra!='\n' && *letra!=' ')
-				fseek(fd1,-1,SEEK_CUR);
-			
-			*fin=1;
-		}
-
-		else{
-			*fallo=1;
-			(*process)++;
-		}
-	}
-}
-
-void id(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *process, int *estado, bool *fallo, bool *fin){
-	
-	buff[*process]=*letra; /*Se almacena el caracter*/
-
-	/*Si indice=0 es el primer dígito, por lo que se cambia al estado 4*/
-	if(!*process){
-		*estado=4;
-		(*process)++;
-	}
-	
-	/*Procesamos un digito, una letra o _*/
-	else if(*letra>='0' && *letra<='9' || *letra>='a' && *letra<='z' || *letra>='A' && *letra<='Z' || *letra=='_')
-		(*process)++;
-
-	/*Si llegamos a un delimitador se crea el token*/
-	else if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'){ 
-		buff[*process]='\0';
-
-		fputs("<",fd2);
-		reserv(fd2,buff);
-		fputs(">\n",fd2);
-		
-		if(*letra=='\n')
-			(*linea)++;
-		else if(*letra!=' ')
-			fseek(fd1,-1,SEEK_CUR);
-		
-		*estado=-1;
-		*fin=1;
+		crearToken(fd1,fd2,estado,linea,fin,*letra,buff, identi);
 	}
 
 	/*Si el símbolo no está contemplado, da error*/
@@ -215,34 +141,121 @@ void id(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, i
 	}
 }
 
-void reserv(FILE *fd2, char buff[]){
-	string palReserv[]={string("if"), string("else"),string("let"),string("int"),string("float"),string("string"),string("boolean"),string("echo"),string("prompt"),string("function"),string("return")};
-	string pal=string(buff);
-	bool coincidencia=0;
-	int index=0;
-	char aux[20];
+void id(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, int *process, int *estado, bool *fallo, bool *fin, SymbolTable* identi){
 	
-	while(index<sizeof(palReserv)/sizeof(string) && !coincidencia){
-		coincidencia=(pal==palReserv[index]);
-		
-		if(!coincidencia)
-			index++;
+	buff[*process]=*letra; /*Se almacena el caracter*/
+
+	/*Si indice=0 es el primer dígito, por lo que se cambia al estado 4*/
+	if(!*process){
+		*estado=4;
+		(*process)++;
 	}
 	
-	if(!coincidencia){
-		sprintf(aux,"%d",cod_numEntero);
-		fputs(aux,fd2);
-		fputs(", ",fd2);
-		fputs(buff,fd2);
+	/*Procesamos un digito, una letra o _*/
+	else if(*letra>='0' && *letra<='9' || *letra>='a' && *letra<='z' || *letra>='A' && *letra<='Z' || *letra=='_')
+		(*process)++;
+
+	/*Si llegamos a un delimitador se crea el token*/
+	else if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'){ 
+		buff[*process]='\0';
+		crearToken(fd1,fd2,estado,linea,fin,*letra,buff, identi);
 	}
+
+	/*Si el símbolo no está contemplado, da error*/
 	else{
-		sprintf(aux,"%d",(cod_reserv+index));
-		fputs(aux,fd2);
-		fputs(", ",fd2);
+		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'){
+			buff[*process]='\0';
+			err(fd3, buff, *estado, *letra, linea);
+
+			if(*letra!='\n' && *letra!=' ')
+				fseek(fd1,-1,SEEK_CUR);
+			
+			*fin=1;
+		}
+
+		else{
+			*fallo=1;
+			(*process)++;
+		}
 	}
 }
 
-char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char *buff){
+void reserv(FILE *fd2, char buff[], char aux[], bool *coincidencia){
+	string palReserv[]={string("if"), string("else"),string("let"),string("int"),string("float"),string("string"),string("boolean"),string("echo"),string("prompt"),string("function"),string("return")};
+	string pal=string(buff);
+	int index=0;
+	
+	while(index<sizeof(palReserv)/sizeof(string) && !(*coincidencia)){
+		*coincidencia=(pal==palReserv[index]);
+		
+		if(!(*coincidencia))
+			index++;
+	}
+	
+	if(!(*coincidencia))
+		sprintf(aux,"%d",cod_ident);
+	else
+		sprintf(aux,"%d",(cod_reserv+index));
+}
+
+int simbolos(char simbolo,int *num){
+	char simbolos[]={'*','=','!','+',';','/','(',')'};
+	int index=1;
+	*num=cod_simb;
+	
+	while(simbolos[index-1]!=simbolo){
+		*num=cod_simb+index;
+		index++;
+	}
+	
+	return *num;
+}
+
+void crearToken(FILE *fd1, FILE *fd2, int *estado, int *linea, bool *fin, char letra, char buff[], SymbolTable* identi){
+	fputc('<',fd2);
+	char aux[5];	/*Variables auxiliares para sprintf*/
+	int num;		/*Variables auxiliares para la creación de tokens para símbolos*/
+	bool coinciden=0;
+	
+	if(*estado==1)
+		sprintf(aux,"%d",cod_cadena);
+	else if(*estado==2)
+		sprintf(aux,"%d",cod_numEntero);
+	else if(*estado==3)
+		sprintf(aux,"%d",cod_numReal);
+	else if(*estado==4)
+		reserv(fd2,buff,aux,&coinciden);
+	else
+		sprintf(aux,"%d",simbolos(letra,&num));
+	
+		fputs(aux,fd2);
+		fputs(", ",fd2);
+		
+	if(!coinciden)//----------------------------- cambio ----------------------------------
+		{
+		    if(*estado==4)   /* identificador */
+		    {
+		        Entry* e = identi->searchEntry(buff);
+		        if(e == nullptr)
+		            e = identi->createNewEntry(buff);
+		        fprintf(fd2, "%d", e->getId());
+		    }
+		    else             /* cadena, entero, real y símbolo */
+		        fputs(buff,fd2);
+		}	//----------------------------- cambio	-----------------------------------	 	
+	
+	fputs(">\n",fd2);
+		
+	if(letra=='\n')
+		(*linea)++;
+	else if(*estado!=1 && *estado!=-1 && letra!=' ')
+		fseek(fd1,-1,SEEK_CUR);
+	
+	*estado=-1;
+	*fin=1;
+}
+
+char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char buff[], SymbolTable* identi){
 	
 	char letra=getc(fd1);	/*Primer caracter del fichero a analizar*/
 	char next='$'; 			/*Se ha elegido $ por coger uno que no es inicio de ningún token*/
@@ -257,22 +270,20 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char *buff){
 			comentario(fd3, buff, &letra, linea, &process, &estado, &next, &fallo, &fin);
 
 		else if(!fallo && (!process && letra==39 || estado==1))
-			cadena(fd2, fd3, buff, &letra, linea, &process, &estado, &next, &fallo, &fin);
+			cadena(fd1,fd2, fd3, buff, &letra, linea, &process, &estado, &next, &fallo, &fin, identi);
 
 		else if(!fallo && (!process && (letra>='0' && letra<='9') || estado==2 || estado==3))
-			num(fd1, fd2, fd3, buff, &letra, linea, &process, &estado, &fallo, &fin);
+			num(fd1, fd2, fd3, buff, &letra, linea, &process, &estado, &fallo, &fin, identi);
 		
 		else if(!fallo && (!process && ( letra>='a' && letra<='z' || letra>='A' && letra<='Z' || letra=='_') || estado==4)){
-			id(fd1, fd2, fd3, buff, &letra, linea, &process, &estado, &fallo, &fin);
+			id(fd1, fd2, fd3, buff, &letra, linea, &process, &estado, &fallo, &fin, identi);
 		}
 		
 		else if(letra=='\n'||letra==' '||letra=='*'||letra=='='||letra=='!'||letra=='+'||letra==';'||letra=='/'||letra=='('||letra==')'){
 
 			if(fallo){
-				cout<<"[DEPURADOR]: procesado "<<process<<"\n";
 				buff[process]='\0';
 				err(fd3, buff, estado, letra, linea);
-				
 				buff[0]='\0';
 				estado=-1;
 				
@@ -281,16 +292,9 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char *buff){
 
 			}
 			else if(letra!='\n'&&letra!=' '){
-				char aux[20];
-				int num;
-				
-				fputc('<',fd2);
-				sprintf(aux,"%d",simbolos(letra,&num));
-				fputs(aux,fd2);
-				fputs(", >\n",fd2);
-				
 				buff[0]=letra;
 				buff[1]='\0';
+				crearToken(fd1, fd2, &estado, linea, &fin, letra, buff, identi);
 			}
 			else if(letra=='\n')
 				(*linea)++;
@@ -317,42 +321,9 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char *buff){
 			notificarError(fd3, "LEXICO", *linea, string(buff)+" es un lexema incompleto.");
 	}
 	
-	if(letra==EOF){
-		buff[0]='E';
-		buff[1]='O';
-		buff[2]='F';
-		buff[3]='\0';
-	}
+	if(letra==EOF){ //-------------------------------------- cambio ----------------
+	    strcpy(buff, "EOF");
+	}		//-------------------------------------- cambio ----------------
 	
 	return buff;
-}
-
-int simbolos(char simbolo,int *num){
-	switch(simbolo){
-		case '*':
-			*num=cod_simb;
-			break;
-		case '=':
-			*num=cod_simb+1;
-			break;
-		case '!':
-			*num=cod_simb+2;
-			break;
-		case '+':
-			*num=cod_simb+3;
-			break;
-		case ';':
-			*num=cod_simb+4;
-			break;
-		case '/':
-			*num=cod_simb+5;
-			break;
-		case '(':
-			*num=cod_simb+6;
-			break;
-		case ')':
-			*num=cod_simb+7;
-			break;
-	}
-	return *num;
 }

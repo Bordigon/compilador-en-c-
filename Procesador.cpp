@@ -1,3 +1,10 @@
+#include "TS/TS_CPP/TSManager.h"
+#include "TS/TS_CPP/Include/SymbolTable.h"
+#include "TS/TS_CPP/Include/Entry.h"
+#include "TS/TS_CPP/Include/TSUtils.h"
+#include <iostream>
+using namespace TS_CPP;
+
 #include "AnalizadorLexico.h"
 #include <fcntl.h>
 
@@ -43,9 +50,13 @@ int main(int argc, char *argv[]){
 	string lexema=string(" ");			/*Representa los atributos de los tokens*/
 	char buff[1024];
 
-	while(lexema!=string("EOF"))
-		lexema=string(analizadorLexico(fd1,fd2,fd3,&linea,buff)); /*Se encarga del análisis*/
+	TSManager manager;
+	SymbolTable* identi = manager.createNewTable("identi");
 
+	while(lexema!=string("EOF"))
+		lexema=string(analizadorLexico(fd1,fd2,fd3,&linea,buff,identi)); /*Se encarga del análisis*/
+
+	TSUtils::writeAllTablesToFile(&manager, "ejemplo_salida.txt");
 	fclose(fd1);
 	fclose(fd2);
 	fclose(fd3);

@@ -1,15 +1,16 @@
-[ERROR LEXICO]: la linea 3 no es valida, r.s no se reconoce como un inicio valido.
+[ERROR LEXICO]: la linea 2 no es valida, 7.a no tiene un formato correcto. Para hacerlo un numero real valido debe ser asi: una secuencia de digitos del 0 al 9, un punto y otra secuencia de digitos del 0 al 9, ejemplo: 84.827
+
+[ERROR LEXICO]: la linea 3 no es valida, .0987 no se reconoce como un inicio valido.
  Los numeros empiezan por digitos del 0 al 9. 
  Los cometarios con /*.
  Las cadenas empiezan por '.
  Los identificadores empiezan por _ o una letra.
 
-[ERROR LEXICO]: la linea 10 no es valida, 7.13d13 no tiene un formato correcto. Para hacerlo un numero real valido debe ser asi: una secuencia de digitos del 0 al 9, un punto y otra secuencia de digitos del 0 al 9, ejemplo: 84.827
+[ERROR LEXICO]: la linea 4 no es valida, 7. no tiene un formato correcto. Para hacerlo un numero real valido debe ser asi: una secuencia de digitos del 0 al 9, un punto y otra secuencia de digitos del 0 al 9, ejemplo: 84.827
 
-[ERROR LEXICO]: la linea 10 no es valida, nfjwnfjw' no se reconoce como un inicio valido.
- Los numeros empiezan por digitos del 0 al 9. 
- Los cometarios con /*.
- Las cadenas empiezan por '.
- Los identificadores empiezan por _ o una letra.
+[ERROR LEXICO]: la linea 5 no es valida, 'hola es una cadena incompleta, debe empezar por ' y acabar por ', y debe estar en un unica linea.
 
-[ERROR LEXICO]: la linea 12 no es valida, f.ff es un lexema incompleto.
+[ERROR LEXICO]: la linea 6 no es valida, ' es una cadena incompleta, debe empezar por ' y acabar por ', y debe estar en un unica linea.
+
+[ERROR LEXICO]: la linea 11 no es valida, 7.f no tiene un formato correcto. Para hacerlo un numero real valido debe ser asi: una secuencia de digitos del 0 al 9, un punto y otra secuencia de digitos del 0 al 9, ejemplo: 84.827
+

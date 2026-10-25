@@ -1,0 +1,1 @@
+g++ -std=c++14 Procesador.cpp AnalizadorLexico.cpp GestorDeErrores.cpp TS/TS_CPP/TSManager.cpp TS/TS_CPP/Include/AttributeValue.cpp TS/TS_CPP/Include/Entry.cpp TS/TS_CPP/Include/SymbolTable.cpp TS/TS_CPP/Include/TSUtils.cpp -o procesador.exe

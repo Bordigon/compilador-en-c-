@@ -322,7 +322,7 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char buff[],
 	}
 	
 	if(letra==EOF){ //-------------------------------------- cambio ----------------
-	    strcpy(buff, "EOF");
+	    strcpy(buff, " ");
 	}		//-------------------------------------- cambio ----------------
 	
 	return buff;

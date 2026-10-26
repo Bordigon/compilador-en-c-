@@ -47,13 +47,13 @@ int main(int argc, char *argv[]){
 
 	/*Análisis de tokens*/
 	int linea=1;			/*Porque linea del fichero vamos leyendo*/
-	string lexema=string(" ");			/*Representa los atributos de los tokens*/
+	string lexema=string("hola");			/*Representa los atributos de los tokens*/
 	char buff[1024];
 
 	TSManager manager;
 	SymbolTable* identi = manager.createNewTable("identi");
 
-	while(lexema!=string("EOF"))
+	while(lexema!=string(" "))
 		lexema=string(analizadorLexico(fd1,fd2,fd3,&linea,buff,identi)); /*Se encarga del análisis*/
 
 	TSUtils::writeAllTablesToFile(&manager, "ejemplo_salida.txt");

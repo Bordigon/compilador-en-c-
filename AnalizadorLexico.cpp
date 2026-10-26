@@ -117,14 +117,14 @@ void num(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, 
 	}
 
 	/*Si llegamos a un delimitador y lo que se proceso antes es un digito tenemos un token*/
-	else if(buff[*process-1]!='.'&&(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||letra=='{'||letra=='}')){ 
+	else if(buff[*process-1]!='.'&&(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}')){ 
 		buff[*process]='\0';
 		crearToken(fd1,fd2,estado,linea,fin,*letra,buff, identi);
 	}
 
 	/*Si el símbolo no está contemplado, da error*/
 	else{
-		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||letra=='{'||letra=='}'){
+		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'){
 			buff[*process]='\0';
 			err(fd3, buff, *estado, *letra, linea);
 
@@ -156,14 +156,14 @@ void id(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, i
 		(*process)++;
 
 	/*Si llegamos a un delimitador se crea el token*/
-	else if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||letra=='{'||letra=='}'){ 
+	else if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'){ 
 		buff[*process]='\0';
 		crearToken(fd1,fd2,estado,linea,fin,*letra,buff, identi);
 	}
 
 	/*Si el símbolo no está contemplado, da error*/
 	else{
-		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||letra=='{'||letra=='}'){
+		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'){
 			buff[*process]='\0';
 			err(fd3, buff, *estado, *letra, linea);
 

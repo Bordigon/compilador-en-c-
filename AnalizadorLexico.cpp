@@ -117,14 +117,14 @@ void num(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, 
 	}
 
 	/*Si llegamos a un delimitador y lo que se proceso antes es un digito tenemos un token*/
-	else if(buff[*process-1]!='.'&&(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}')){ 
+	else if(buff[*process-1]!='.'&&(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'||*letra==','||*letra=='\t')){ 
 		buff[*process]='\0';
 		crearToken(fd1,fd2,estado,linea,fin,*letra,buff, identi);
 	}
 
 	/*Si el símbolo no está contemplado, da error*/
 	else{
-		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'){
+		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'||*letra==','||*letra=='\t'){
 			buff[*process]='\0';
 			err(fd3, buff, *estado, *letra, linea);
 
@@ -156,14 +156,14 @@ void id(FILE *fd1, FILE *fd2, FILE *fd3, char buff[], char* letra, int *linea, i
 		(*process)++;
 
 	/*Si llegamos a un delimitador se crea el token*/
-	else if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'){ 
+	else if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'||*letra==','||*letra=='\t'){ 
 		buff[*process]='\0';
 		crearToken(fd1,fd2,estado,linea,fin,*letra,buff, identi);
 	}
 
 	/*Si el símbolo no está contemplado, da error*/
 	else{
-		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'){
+		if(*letra==' '||*letra=='\n'||*letra=='+'||*letra=='='||*letra==';'||*letra=='/'||*letra=='!'||*letra=='('||*letra==')'||*letra=='{'||*letra=='}'||*letra==','||*letra=='\t'){
 			buff[*process]='\0';
 			err(fd3, buff, *estado, *letra, linea);
 
@@ -199,7 +199,7 @@ void reserv(FILE *fd2, char buff[], char aux[], bool *coincidencia){
 }
 
 int simbolos(char simbolo,int *num){
-	char simbolos[]={'*','=','!','+',';','/','(',')'};
+	char simbolos[]={'*','=','!','+',';','/','(',')','{','}',','};
 	int index=1;
 	*num=cod_simb;
 	
@@ -216,6 +216,11 @@ void crearToken(FILE *fd1, FILE *fd2, int *estado, int *linea, bool *fin, char l
 	char aux[5];	/*Variables auxiliares para sprintf*/
 	int num;		/*Variables auxiliares para la creación de tokens para símbolos*/
 	bool coinciden=0;
+	
+	if(letra==EOF){
+		fprintf(fd2,"EOF,>");
+		exit(0);
+	}
 	
 	if(*estado==1)
 		sprintf(aux,"%d",cod_cadena);
@@ -279,7 +284,7 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char buff[],
 			id(fd1, fd2, fd3, buff, &letra, linea, &process, &estado, &fallo, &fin, identi);
 		}
 		
-		else if(letra=='\n'||letra==' '||letra=='*'||letra=='='||letra=='!'||letra=='+'||letra==';'||letra=='/'||letra=='('||letra==')'||letra=='{'||letra=='}'){
+		else if(letra=='\n'||letra==' '||letra=='*'||letra=='='||letra=='!'||letra=='+'||letra==';'||letra=='/'||letra=='('||letra==')'||letra=='{'||letra=='}'||letra==','||letra=='\t'){
 
 			if(fallo){
 				buff[process]='\0';
@@ -291,7 +296,7 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char buff[],
 					fseek(fd1, -1, SEEK_CUR);
 
 			}
-			else if(letra!='\n'&&letra!=' '){
+			else if(letra!='\n'&&letra!=' '&&letra!='\t'){
 				buff[0]=letra;
 				buff[1]='\0';
 				crearToken(fd1, fd2, &estado, linea, &fin, letra, buff, identi);
@@ -322,7 +327,8 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char buff[],
 	}
 	
 	if(letra==EOF){ //-------------------------------------- cambio ----------------
-	    strcpy(buff, " ");
+	    crearToken(fd1, fd2, &estado, linea, &fin, letra, buff, identi);
+		strcpy(buff, " ");
 	}		//-------------------------------------- cambio ----------------
 	
 	return buff;

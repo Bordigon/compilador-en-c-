@@ -12,7 +12,7 @@
 #define cod_numReal 2
 #define cod_ident 3
 #define cod_simb 4
-#define cod_reserv 12
+#define cod_reserv 15
 
 using namespace std;
 

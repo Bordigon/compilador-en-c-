@@ -1,0 +1,12 @@
+function hola(){
+int i=9;
+int p;
+
+if(i==10)
+	p=i+1;
+else
+	p=i+2;
+/*Fin del condicional*/
+
+}
+

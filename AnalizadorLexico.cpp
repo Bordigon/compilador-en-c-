@@ -327,7 +327,7 @@ char *analizadorLexico(FILE* fd1, FILE* fd2, FILE* fd3, int *linea, char buff[],
 	}
 	
 	if(letra==EOF){ //-------------------------------------- cambio ----------------
-	    crearToken(fd1, fd2, &estado, linea, &fin, letra, buff, identi);
+	    //crearToken(fd1, fd2, &estado, linea, &fin, letra, buff, identi);
 		strcpy(buff, " ");
 	}		//-------------------------------------- cambio ----------------
 	

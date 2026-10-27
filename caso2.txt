@@ -1,0 +1,15 @@
+/* Prueba lexica: comentarios de bloque y cadenas con comillas simples */
+
+/* hola
+en varias
+lineas */
+
+let string cad;
+let boolean b;
+
+_precio_1 = 117549436.0;
+
+cad = 'Hola mundo';
+cad = 'Con simbolos: (+) * = ! ; y numeros 123 4.5';
+
+function factorial int (x int)

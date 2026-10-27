@@ -1,0 +1,22 @@
+let area float;
+let activo boolean;
+let titulo string;
+let ruta string = 'carpeta // no es un comentario';
+
+function saludo void (void)
+{
+    let msg string;
+    msg = 'Hola desde la funcion';
+    echo msg;
+}
+
+function cuadrado int (n int)
+{
+    return n * n;
+}
+
+function suma float (x float, y float)
+{
+    return x + y; /* suma de dos reales */
+}
+

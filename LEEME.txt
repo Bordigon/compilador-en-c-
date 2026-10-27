@@ -1,11 +1,12 @@
 He incluido un pequeño gestor de errores, además de que reconoce cadenas.
 
-Compilar: g++ Procesador.cpp AnalizadorLexico.cpp GestorDeErrores.cpp -o procesador.exe
+Compilar: paraCompilar.bat
 Ejecutar: procesador.exe [Fichero que quieras inspeccionar] [Fichero donde se que generan los tokens] [Fichero de errores]
 
-Hay 5 ficheros:
+Hay 8 ficheros:
 		cadenas.txt-->Que debería funcionar bien.
 		comentarios.txt-->Que debería funcionar bien.
 		cadenasErroneas.txt-->Que debería dar solo errores.
 		comentariosErroneos.txt-->Que debería dar errores y generar 2 tokens correctos.
 		Prueba1.txt-->Mezcla número, comentarios, cadenas y errores.
+		Casos 1,2,3 de éxito.
